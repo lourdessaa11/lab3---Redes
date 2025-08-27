@@ -1,0 +1,1 @@
+{'type':'names', 'config':{'A': 'swag@bar.lol', 'B': 'omg@bar.lol', 'C': 'yeet@bar.lol', 'D': 'bar@bar.lol', 'E': 'lol@bar.lol', 'F': 'foo@bar.lol', 'G': 'woot@bar.lol'} }
