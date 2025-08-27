@@ -3,8 +3,10 @@ import json
 import redis.asyncio as redis
 from typing import Dict, List, Set
 
+
 class NodoFlooding:
-    def __init__(self, nombre: str, host: str, port: int, password: str, vecinos: List[str], grupo: str = "grupo5", seccion: str = "sec10"):
+    def __init__(self, nombre: str, host: str, port: int, password: str, vecinos: List[str], grupo: str = "grupo5",
+                 seccion: str = "sec10"):
         self.nombre = nombre
         self.vecinos = vecinos
         self.grupo = grupo
@@ -23,13 +25,15 @@ class NodoFlooding:
         print(f"[{self.nombre}] Suscrito a canales: {canales}")
 
     async def enviar_mensaje(self, tipo: str, destino: str, payload: str, headers: dict = None, hops: int = 0):
+        import time
         mensaje = {
             "type": tipo,
             "from": self.nombre,
             "to": destino,
             "hops": hops,
             "headers": headers or {},
-            "payload": payload
+            "payload": payload,
+            "msg_id": f"{self.nombre}_{int(time.time() * 1000)}_{hash(payload)}"  # ID único
         }
         canal_destino = self.get_canal_nombre(destino)
         await self.redis.publish(canal_destino, json.dumps(mensaje))
@@ -37,7 +41,7 @@ class NodoFlooding:
 
     async def flooding_reenviar(self, datos: dict):
         ttl = datos.get('hops', 0) + 1
-        if ttl > 5:
+        if ttl > 5:  # TTL máximo
             print(f"[{self.nombre}] Mensaje descartado por TTL máximo: {ttl}")
             return
 
@@ -47,7 +51,8 @@ class NodoFlooding:
             "to": datos['to'],
             "hops": ttl,
             "headers": datos.get('headers', {}),
-            "payload": datos['payload']
+            "payload": datos['payload'],
+            "msg_id": datos.get('msg_id')
         }
 
         for vecino in self.vecinos:
@@ -66,7 +71,11 @@ class NodoFlooding:
                     print(f"[{self.nombre}] Error al decodificar mensaje: {mensaje['data']}")
 
     async def procesar_mensaje(self, datos: dict):
-        paquete_id = f"{datos['from']}_{datos['to']}_{datos.get('hops', 0)}_{hash(datos['payload'])}"
+        import time
+        if 'msg_id' not in datos:
+            datos['msg_id'] = f"{datos['from']}_{int(time.time() * 1000)}_{hash(datos['payload'])}"
+
+        paquete_id = datos['msg_id']
         if paquete_id in self.paquetes_procesados:
             print(f"[{self.nombre}] Paquete ya procesado, ignorando: {paquete_id}")
             return
@@ -75,9 +84,10 @@ class NodoFlooding:
         print(f"[{self.nombre}] Procesando mensaje de {datos['from']} para {datos['to']}")
 
         if datos['to'] == self.nombre:
-            print(f"[{self.nombre}] ¡;Mensaje Recibido! De: {datos['from']}, Contenido: {datos['payload']}")
+            print(f"[{self.nombre}] ¡MENSAJE RECIBIDO! De: {datos['from']}, Contenido: {datos['payload']}")
             return
 
+        # Si no es para este nodo, aplicar algoritmo de flooding
         await self.flooding_reenviar(datos)
 
     async def enviar_mensaje_usuario(self, destino: str, mensaje: str):
