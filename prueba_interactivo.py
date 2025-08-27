@@ -32,8 +32,8 @@ async def main_interactivo(nombre_nodo: str):
         port=6379,
         password="UVGRedis2025",
         vecinos=vecinos,
-        grupo="grupo5",  # Cambiar por tu número de grupo
-        seccion="sec10"  # Cambiar por tu número de sección
+        grupo="grupo5",
+        seccion="sec10"
     )
 
     print(f"Nodo {nombre_nodo} iniciado con vecinos: {vecinos}")
