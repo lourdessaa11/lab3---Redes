@@ -1,1 +1,1 @@
-{'type':'names', 'config':{'A': 'swag@bar.lol', 'B': 'omg@bar.lol', 'C': 'yeet@bar.lol', 'D': 'bar@bar.lol', 'E': 'lol@bar.lol', 'F': 'foo@bar.lol', 'G': 'woot@bar.lol'} }
+{"type":"names", "config":{"A": "sec10.grupo5.A", "B": "sec10.grupo5.B", "C": "sec10.grupo1.A", "D": "sec10.grupo5.D", "E": "sec10.grupo5.E", "F": "sec10.grupo5.F", "G": "sec10.grupo5.G"}}
